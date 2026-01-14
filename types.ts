@@ -1,6 +1,6 @@
 export enum Role {
   PUBLIC = 'PUBLIC',
-  AUTHORIZED = 'AUTHORIZED', // Student/Faculty
+  AUTHORIZED = 'AUTHORIZED',
   ADMIN = 'ADMIN'
 }
 
@@ -13,10 +13,12 @@ export enum SourceType {
 export interface Document {
   id: string;
   title: string;
-  content: string; // Plain text content for this demo
-  category: 'student_list' | 'faculty_file' | 'curriculum' | 'other';
+  content: string;
+  category: string;
+  sourceType?: SourceType;
   isRestricted: boolean;
-  dateUploaded: string;
+  uploadedAt: number;
+  citation?: string;
 }
 
 export interface Citation {
@@ -24,8 +26,6 @@ export interface Citation {
   title: string;
   sourceType: SourceType;
   snippet?: string;
-  scrapedAt?: number;
-  pageSection?: string;
 }
 
 export interface Message {
@@ -35,8 +35,6 @@ export interface Message {
   citations?: Citation[];
   timestamp: number;
   needsWebSearchApproval?: boolean;
-  isSearching?: boolean; // New: shows when actively scraping
-  scrapedPages?: string[]; // New: tracks which pages were scraped
 }
 
 export interface Thread {
@@ -49,35 +47,4 @@ export interface Thread {
 export interface UserState {
   role: Role;
   isAuthenticated: boolean;
-}
-
-// Audio/TTS Types
-export interface TTSChunk {
-  text: string;
-  audioData?: string;
-  status: 'pending' | 'generating' | 'ready' | 'playing' | 'error';
-}
-
-export interface AudioPlaybackState {
-  isPlaying: boolean;
-  isPaused: boolean;
-  currentChunk: number;
-  totalChunks: number;
-  progress: number;
-}
-
-// Live Voice Types
-export interface LiveVoiceState {
-  status: 'idle' | 'connecting' | 'listening' | 'processing' | 'speaking' | 'error';
-  audioLevel: number;
-  transcript: string;
-  response: string;
-}
-
-// Search Result Types
-export interface SearchContext {
-  query: string;
-  scrapedContent: string;
-  citations: Citation[];
-  scrapedAt: number;
 }

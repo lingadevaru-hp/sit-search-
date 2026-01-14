@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIT Scholar AI</title>
+  <title>SIT Scholar - Academic Search Engine</title>
+  <meta name="description" content="Intelligent academic assistant for Siddaganga Institute of Technology">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,33 +17,32 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
           },
           colors: {
-            sit: {
-              900: '#1a1f2c', // Charcoal
-              800: '#262b3a', // Darker gray
-              700: '#323848', // Dark gray
-              100: '#f3f4f6', // Soft white
-              accent: '#3b82f6', // Neutral Blue
-              success: '#10b981', // Soft Green
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
             }
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-out',
-            'slide-up': 'slideUp 0.5s ease-out',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          },
+          }
         },
       },
     }
   </script>
   <style>
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
     }
 
-    /* Custom Scrollbar */
+    /* Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -53,72 +53,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #d1d5db;
       border-radius: 3px;
     }
 
     .dark ::-webkit-scrollbar-thumb {
       background: #374151;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-
-    .dark ::-webkit-scrollbar-thumb:hover {
-      background: #4b5563;
-    }
-
-    /* Markdown Table Styles */
-    .markdown-content table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin: 1.5rem 0;
-      font-size: 0.9rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      overflow: hidden;
-    }
-
-    .markdown-content th {
-      background-color: #f9fafb;
-      font-weight: 600;
-      text-align: left;
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid #e5e7eb;
-      color: #374151;
-    }
-
-    .markdown-content td {
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid #e5e7eb;
-      color: #4b5563;
-    }
-
-    .markdown-content tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* Dark Mode Table */
-    .dark .markdown-content table {
-      border-color: #374151;
-    }
-
-    .dark .markdown-content th {
-      background-color: #1f2937;
-      border-color: #374151;
-      color: #e5e7eb;
-    }
-
-    .dark .markdown-content td {
-      border-color: #374151;
-      color: #d1d5db;
-      background-color: #111827;
-    }
-
-    .dark .markdown-content tr:hover td {
-      background-color: #1f2937;
     }
 
     /* Animations */
@@ -135,192 +75,58 @@
     @keyframes slideUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
       }
 
       to {
         opacity: 1;
         transform: translateY(0);
-      }
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes pulse-glow {
-
-      0%,
-      100% {
-        box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-      }
-
-      50% {
-        box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
-      }
-    }
-
-    @keyframes ripple {
-      0% {
-        transform: scale(1);
-        opacity: 0.4;
-      }
-
-      100% {
-        transform: scale(1.5);
-        opacity: 0;
-      }
-    }
-
-    @keyframes wave {
-
-      0%,
-      100% {
-        height: 4px;
-      }
-
-      50% {
-        height: 20px;
-      }
-    }
-
-    @keyframes float {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-
-    @keyframes shimmer {
-      0% {
-        background-position: -200% 0;
-      }
-
-      100% {
-        background-position: 200% 0;
       }
     }
 
     .animate-fade-in {
-      animation: fadeIn 0.5s ease-out;
+      animation: fadeIn 0.3s ease-out;
     }
 
     .animate-slide-up {
-      animation: slideUp 0.5s ease-out;
+      animation: slideUp 0.3s ease-out;
     }
 
-    .animate-slide-down {
-      animation: slideDown 0.3s ease-out;
-    }
-
-    .animate-pulse-glow {
-      animation: pulse-glow 2s ease-in-out infinite;
-    }
-
-    .animate-ripple {
-      animation: ripple 1.5s ease-out infinite;
-    }
-
-    .animate-float {
-      animation: float 3s ease-in-out infinite;
-    }
-
-    /* Audio Wave Animation */
-    .audio-wave {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      height: 24px;
-    }
-
-    .audio-wave span {
-      width: 3px;
-      height: 4px;
-      background: currentColor;
-      border-radius: 1.5px;
-      animation: wave 0.5s ease-in-out infinite;
-    }
-
-    .audio-wave span:nth-child(1) {
-      animation-delay: 0s;
-    }
-
-    .audio-wave span:nth-child(2) {
-      animation-delay: 0.1s;
-    }
-
-    .audio-wave span:nth-child(3) {
-      animation-delay: 0.2s;
-    }
-
-    .audio-wave span:nth-child(4) {
-      animation-delay: 0.3s;
-    }
-
-    .audio-wave span:nth-child(5) {
-      animation-delay: 0.4s;
-    }
-
-    /* Shimmer Loading Effect */
-    .shimmer {
-      background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    /* Gradient Text */
-    .gradient-text {
-      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Glass Effect */
-    .glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .dark .glass {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* Citation Card Hover */
-    .citation-card {
-      transition: all 0.2s ease;
-    }
-
-    .citation-card:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Search Engine Specific Styles */
-    .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    }
-
-    /* Line clamp utility */
+    /* Line clamp */
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+
+    /* Prose styling */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+
+    .prose th,
+    .prose td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .dark .prose th,
+    .dark .prose td {
+      border-color: #374151;
+    }
+
+    .prose th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+
+    .dark .prose th {
+      background: #1f2937;
     }
   </style>
   <script type="importmap">
@@ -340,7 +146,7 @@
 </script>
 </head>
 
-<body class="bg-[#f9fafb] text-gray-900 dark:bg-[#000000] dark:text-gray-100 transition-colors duration-200">
+<body class="bg-gray-50 text-gray-900 dark:bg-[#0a0a0b] dark:text-gray-100">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

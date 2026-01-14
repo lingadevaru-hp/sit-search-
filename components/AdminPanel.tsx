@@ -26,7 +26,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
       content: newDocContent,
       category: newDocCategory,
       isRestricted,
-      dateUploaded: new Date().toISOString()
+      uploadedAt: Date.now()
     };
 
     StorageService.addDocument(newDoc);
@@ -53,7 +53,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
-          
+
           {/* Upload Section */}
           <div className="bg-gray-50 dark:bg-sit-800 p-6 rounded-xl border border-gray-200 dark:border-sit-700">
             <h3 className="text-lg font-medium mb-4 flex items-center space-x-2 text-gray-900 dark:text-white">
@@ -64,8 +64,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={newDocTitle}
                     onChange={(e) => setNewDocTitle(e.target.value)}
                     className="w-full rounded-lg border border-gray-300 dark:border-sit-700 bg-white dark:bg-sit-900 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
@@ -74,7 +74,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                  <select 
+                  <select
                     value={newDocCategory}
                     onChange={(e) => setNewDocCategory(e.target.value as any)}
                     className="w-full rounded-lg border border-gray-300 dark:border-sit-700 bg-white dark:bg-sit-900 px-3 py-2 text-sm text-gray-900 dark:text-white"
@@ -86,10 +86,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
                   </select>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content (Raw Text)</label>
-                <textarea 
+                <textarea
                   value={newDocContent}
                   onChange={(e) => setNewDocContent(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 dark:border-sit-700 bg-white dark:bg-sit-900 px-3 py-2 text-sm text-gray-900 dark:text-white h-32 font-mono"
@@ -99,11 +99,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center space-x-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={isRestricted} 
+                  <input
+                    type="checkbox"
+                    checked={isRestricted}
                     onChange={(e) => setIsRestricted(e.target.checked)}
-                    className="rounded text-blue-500 focus:ring-blue-500 bg-gray-100 dark:bg-sit-700 border-gray-300 dark:border-sit-600" 
+                    className="rounded text-blue-500 focus:ring-blue-500 bg-gray-100 dark:bg-sit-700 border-gray-300 dark:border-sit-600"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Restricted Access (Admin/Auth Only)</span>
                 </label>
@@ -134,7 +134,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, documents, onUp
                       </div>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleDelete(doc.id)}
                     className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                   >

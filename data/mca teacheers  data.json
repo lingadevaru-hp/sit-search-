@@ -1,0 +1,876 @@
+{
+  "sit_department_data": {
+    "department_features": [
+      {
+        "value": "Placements",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Gold Medalists",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Faculty Details",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Research Scholar Details",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Gold Medalists -  Two Year Program",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Gold Medalists - Three Year Program",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "List of Honors",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "About Department",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "To bridge the wide chasm between Computer theory and applications, Siddaganga Educational Society started MCA program in the year 1994 with an intake of 30 students. The program became autonomous during 2008. It is affiliated to Visvesvaraya technological University and approved by All India Council for technical Education. The main focus of the program is the application of software technology to solve business problems. The programme offers a number of in-depth, application-oriented subjects.It covers the methodology to develop an error free software product efficiently, and to maintain software products, that utilize networking technology, that integrate multiple technologies and other important software applications.The regular curriculum is supplemented by additional inputs to keep abreast of the changing scenario in the IT industry. In addition to the curriculum, the periodic seminars from experts in the industry as well as academia. Students of MCA are being consistently encouraged to perform self learning related activities through mini project works and student seminars. Apart from this students are guided to hone their writing skills through Departmental News Letter Info-vista. Intra-departmental contests are regularly held to enable the students to sharpen their skills . In response to the ever-changing needs of the IT industries, students of MCA are getting soft skill straining at various levels.The campus placement for MCA has been good. Almost 90% of the eligible MCA students get placed in campus recruitments. Some of the companies that offered placements to MCA students are TCS, Infosys, Wipro Accenture, Aricent, HP India Software Operations, Siemens Public Communications Networks Ltd, etc. Alumni of the department are well placed in leading national and multinational companies, proving their mettle in both system and application areas. The department of MCA, SIT, aims at providing computer professionals with opportunities to pursue in-depth studies in software technology. The department is creating a synergy between computer education and the demands of IT industry.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "To effectively mould quality and responsible computer professionals with a service mindset and spirituality for nurturing the global technological competence",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "M1: \tTo develop computer professionals with technical proficiency, soft skills, ethical values, and a service-oriented mindset.M2: \tTo foster research, innovation, and problem-solving skills catering to the needs of industry, academia, and society.M3: \tTo promote entrepreneurship and continuous adaptability to emerging technologies.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Short Range Goals",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Long Range Goals",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Program Educational Objectives (PEOs)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Programme Outcomes (POs)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Organizing quality improvement programmes for the faculty",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Conducting programmes for the benefit of local community and society at large",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Developing institute industry interaction",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Establishing strong linkages with the alumni of the department",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Providing a congenial atmosphere for higher studies and research both among students and faculty",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Integrating new technologies into instructions and curriculum",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Developing linkages with regional, national and international organizations",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Establishing Software Development Center",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PEO1: Graduates will have strong theoretical and technical proficiency to meet the evolving global needs of society, industry and academia.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PEO2: Graduates will demonstrate professionalism, teamwork, and ethical values in solving innovative problems.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PEO3: Graduates will engage in continuous learning and upskilling to adapt to emerging technologies and practices.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO1 - Foundation Knowledge: Apply knowledge of mathematics, programming logic and coding fundamentals for solution architecture and problem solving.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO2 - Problem Analysis: Identify, review, formulate and analyse problems for primarily focusing on customer requirements using critical thinking frameworks.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO3 - Development of Solutions: Design, develop and investigate problems with as an innovative approach for solutions incorporating ESG/SDG goals.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO4 - Modern Tool Usage: Select, adapt and apply modern computational tools such as development of algorithms with an understanding of the limitations including human biases.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO5 - Individual and Teamwork: Function and communicate effectively as an individual or a team leader in diverse and multidisciplinary groups. Use methodologies such as agile.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO6 - Project Management and Finance: Use the principles of project management such as scheduling, work breakdown structure and be conversant with the principles of Finance for profitable project management.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO7 - Ethics: Commit to professional ethics in managing software projects with financial aspects. Learn to use new technologies for cyber security and insulate customers from malware.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "PO8 - Life-long learning: Change management skills and the ability to learn, keep up with contemporary technologies and ways of working.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line330",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Short Range Goals",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Organizing quality improvement programmes for the facultyConducting programmes for the benefit of local community and society at largeDeveloping institute industry interactionEstablishing strong linkages with the alumni of the departmentProviding a congenial atmosphere for higher studies and research both among students and faculty",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Long Range Goals",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Integrating new technologies into instructions and curriculumDeveloping linkages with regional, national and international organizationsEstablishing Software Development Center",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Program Educational Objectives (PEOs)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Graduates of the program:PEO1: Graduates will have strong theoretical and technical proficiency to meet the evolving global needs of society, industry and academia.PEO2: Graduates will demonstrate professionalism, teamwork, and ethical values in solving innovative problems.PEO3: Graduates will engage in continuous learning and upskilling to adapt to emerging technologies and practices.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Programme Outcomes (POs)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "At the end of the programme, graduate of MCA will be able to:PO1 - Foundation Knowledge: Apply knowledge of mathematics, programming logic and coding fundamentals for solution architecture and problem solving.PO2 - Problem Analysis: Identify, review, formulate and analyse problems for primarily focusing on customer requirements using critical thinking frameworks.PO3 - Development of Solutions: Design, develop and investigate problems with as an innovative approach for solutions incorporating ESG/SDG goals.PO4 - Modern Tool Usage: Select, adapt and apply modern computational tools such as development of algorithms with an understanding of the limitations including human biases.PO5 - Individual and Teamwork: Function and communicate effectively as an individual or a team leader in diverse and multidisciplinary groups. Use methodologies such as agile.PO6 - Project Management and Finance: Use the principles of project management such as scheduling, work breakdown structure and be conversant with the principles of Finance for profitable project management.PO7 - Ethics: Commit to professional ethics in managing software projects with financial aspects. Learn to use new technologies for cyber security and insulate customers from malware.PO8 - Life-long learning: Change management skills and the ability to learn, keep up with contemporary technologies and ways of working.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Year | Student Name | USN",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2024 | KRUTIKA KOTI | 1SI22MC027",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2023 | SHRUTHI T N | 1SI21MC047",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2022 | CHANDANA N | 1SI20MC005",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Year | Student Name | USN",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2022 | Tara K N | 1SY19MCA20",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2021 | Devika M J | 1SI18MCA05",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2020 | Apoorva H K | 1SI18MCA50",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2019 | Sushmitha T M | 1SI16MCA46",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2018 | Pavan B G | 1SI15MCA23",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2017 | Tejaswini P M | 1SI15MCA80",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2016 | Naga Rohith D R | 1SI13MCA19",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2015 | M Anusha | 1SI12MCA12",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2014 | Mithilesh Prasad | 1SI11MCA16",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2013 | Ravi Patil | 1SI10MCA33",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2012 | Shama | 1SI09MCA44",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2011 | Pooja Priyadarshini | 1SI08MCA31",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Year | Student Name | VTU Rank",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2009 | Sugandha Sreevatsava | IX",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2008 | Vikram Kumar Jalan | X",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2008 | Surbhi Joshi | VI",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2008 | Mahalingeshwara K N | III",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2005 | T Vidya | X",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2003 | Priya Sinha | VIII",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2002 | Satyabrata Nayak | VI",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2001 | Shilpa S Rao | I",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1999 | P Ramprasad | IV",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Details of the Faculty",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Research Scholar Details",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Student Projects",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Proctor Student List 2020-21",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Proctor Student List 2019-20",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Proctor Student List 2018-19",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Batch:  2023",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Batch : 2022",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Batch : 2021",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Batch : 2019 & 2020",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "The Department offers two programmes that are affiliated to Visvesvaraya Technological University, Belagavi and recognized by AICTE.Master of Computer ApplicationsThe department offers a 2-year full-time MCA Programme with an intake of 60.",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Ph.D. Programme",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "The department is a recognised research centre under Visvesvaraya Technological University for offering the Ph.D. programme.\nThe department has two faculty members recognised as guides for the Ph.D. programme by the university. So far seven research scholars have successfully completed their Ph.D. from the MCA research centre",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line709",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "View for more details",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line464",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Deepak Rao T KInstructordeepak_tk@sit.ac.in+91 9901995908Diploma in Computer Science & Engg.Working Area: V.B, M.S Office",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Prakash K RAttenderprakash@sit.ac.in+91 9611776797-Working Area: -",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line474",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Chairman(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. B G PremasudhaProfessor & Head, Dept. of MCA",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Subject expert from outside the University(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. R MadhusudhanProfessorDepartment of Mathematical & Computational SciencesNITK,Surathkal",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Expert from outside the college nominated by Vice Chancellor,VTU, Belagavi(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. Gopalakrishnan TAssociate ProfessorDepartment of Information TechnologyMaipal Institute of Technology, Bengaluru",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Representative from Industry/Corporate sector/allied area relating to placement(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Mr. Lohagirish NarasimappaTechnical Product ManagerAcelucid Technologies Pvt LtdBangalore",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Post-Graduate meritorious alumnus(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Mr. Chamaraju M(2001 Batch)Sr. Manager Software DevelopmentLumen Technologies, Bangalore",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Internal Members(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. Asha Gowda KaregowdaAssociate Professor | Dr. H S Vijaya KumarAssistant Professor",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Student Representative(BOS)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Ms. Krutika Koti(1SI22MC027)IV Semester MCA",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Chairman(BOE)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. B G PremasudhaProfessor & Head, Dept. of MCA",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Internal Members(BOE)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. Asha Gowda KaregowdaAssociate Professor | Dr. H S Vijaya KumarAssistant Professor",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "External Members(BOE)",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Dr. Monica R MundadaChief Proctor and HeadMCA, MSRIT",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line584",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Warning: include(./component/mcadept/mcaboe.php): failed to open stream: No such file or directory in C:\\wamp64\\www\\sit\\html\\department.php on line659",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Warning: include(): Failed opening './component/mcadept/mcaboe.php' for inclusion (include_path='.;C:\\php\\pear') in C:\\wamp64\\www\\sit\\html\\department.php on line659",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "The faculty of the department are actively involved in research leading to publication of journal articles, conference papers, books.The details of the faculty publications during 2020-21 to 2022-23 are as follows:",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "List of Publications",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line1066",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "The faculty of the department are actively involved in research leading to publication of journal articles, conference papers, books.The details of the faculty publications during 2020-21 to 2022-23 are as follows:Sl NoPublicationNumber1Publication in refereed journals222Papers presented in conferences193Books08List of PublicationsList of Publications | Sl No | Publication | Number | 1 | Publication in refereed journals | 22 | 2 | Papers presented in conferences | 19 | 3 | Books | 08 | List of Publications",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Sl No | Publication | Number",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | Publication in refereed journals | 22",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2 | Papers presented in conferences | 19",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "3 | Books | 08",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "List of Publications",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Sl No | Publication | Number",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | Publication in refereed journals | 22",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "2 | Papers presented in conferences | 19",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "3 | Books | 08",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "List of Publications",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "( ! )Notice: Undefined variable: namess in C:\\wamp64\\www\\sit\\html\\department.php on line946",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "# | Time | Memory | Function | Location",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "1 | 0.0003 | 360984 | {main}(  ) | ...\\department.php:0",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Scheme & Syllabus",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      },
+      {
+        "value": "Batch - 2025Batch - 2024(I & II Semester)Batch - 2024(III & IV Semester)Batch - 2023Batch - 2022Batch - 2021Batch - 2020Batch - 2019Batch - 2018",
+        "value_citation": "http://sit.ac.in/html/department.php?deptid=15"
+      }
+    ]
+  },
+  "faculty_profiles": [
+    {
+      "full_name": "Dr Vijaya Kumar H S",
+      "full_name_citation": "https://sit.irins.org/profile/91105",
+      "contact_details": {
+        "phone": "9844521479",
+        "phone_citation": "https://sit.irins.org/profile/91105"
+      },
+      "educational_background": [
+        {
+          "degree": "Ph.D",
+          "degree_citation": "https://sit.irins.org/profile/91105",
+          "institution": "Visvesvaraya Technological University",
+          "institution_citation": "https://sit.irins.org/profile/91105",
+          "year": 2020,
+          "year_citation": "https://sit.irins.org/profile/91105"
+        },
+        {
+          "degree": "M.Phil",
+          "degree_citation": "https://sit.irins.org/profile/91105",
+          "institution": "Madurai Kamraj University",
+          "institution_citation": "https://sit.irins.org/profile/91105",
+          "year": 2008,
+          "year_citation": "https://sit.irins.org/profile/91105"
+        }
+      ],
+      "professional_experience": [
+        {
+          "job_title": "Assistant Professor",
+          "job_title_citation": "https://sit.irins.org/profile/91105",
+          "organization": "MCA, Siddaganga Institute of Technology",
+          "organization_citation": "https://sit.irins.org/profile/91105",
+          "start_date": "2000",
+          "start_date_citation": "https://sit.irins.org/profile/91105",
+          "end_date": "Present",
+          "end_date_citation": "https://sit.irins.org/profile/91105"
+        }
+      ],
+      "research_topics": [
+        {
+          "value": "Computer Science Information Systems",
+          "value_citation": "https://sit.irins.org/profile/91105"
+        },
+        {
+          "value": "Image processing",
+          "value_citation": "https://sit.irins.org/profile/91105"
+        },
+        {
+          "value": "Evolutionary Computing Techniques",
+          "value_citation": "https://sit.irins.org/profile/91105"
+        },
+        {
+          "value": "Computer Networks",
+          "value_citation": "https://sit.irins.org/profile/91105"
+        },
+        {
+          "value": "Soft Computing",
+          "value_citation": "https://sit.irins.org/profile/91105"
+        }
+      ]
+    },
+    {
+      "full_name": "Dr Bhanuprakash C",
+      "full_name_citation": "https://sit.irins.org/profile/91109",
+      "contact_details": {
+        "phone": "9844418422",
+        "phone_citation": "https://sit.irins.org/profile/91109"
+      },
+      "educational_background": [
+        {
+          "degree": "M.C.A",
+          "degree_citation": "https://sit.irins.org/profile/91109",
+          "institution": "Bangalore University, Bangalore",
+          "institution_citation": "https://sit.irins.org/profile/91109",
+          "year": 1998,
+          "year_citation": "https://sit.irins.org/profile/91109"
+        }
+      ],
+      "professional_experience": [
+        {
+          "job_title": "Assistant Professor",
+          "job_title_citation": "https://sit.irins.org/profile/91109",
+          "organization": "MCA, Siddaganga Institute of Technology",
+          "organization_citation": "https://sit.irins.org/profile/91109",
+          "start_date": "2001",
+          "start_date_citation": "https://sit.irins.org/profile/91109",
+          "end_date": "Present",
+          "end_date_citation": "https://sit.irins.org/profile/91109"
+        }
+      ],
+      "research_topics": [
+        {
+          "value": "Computer Science Information Systems",
+          "value_citation": "https://sit.irins.org/profile/91109"
+        },
+        {
+          "value": "Data base applications and Data mining",
+          "value_citation": "https://sit.irins.org/profile/91109"
+        },
+        {
+          "value": "Soft computing Big data analytics",
+          "value_citation": "https://sit.irins.org/profile/91109"
+        }
+      ]
+    },
+    {
+      "full_name": "Dr Asha Gowda Karegowda",
+      "full_name_citation": "https://sit.irins.org/profile/91103",
+      "contact_details": {
+        "phone": "9844327268",
+        "phone_citation": "https://sit.irins.org/profile/91103"
+      },
+      "educational_background": [
+        {
+          "degree": "Ph.D",
+          "degree_citation": "https://sit.irins.org/profile/91103",
+          "institution": "Visvesvaraya Technological University, Belagavi",
+          "institution_citation": "https://sit.irins.org/profile/91103",
+          "year": 2013,
+          "year_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "degree": "Master of Philosophy",
+          "degree_citation": "https://sit.irins.org/profile/91103",
+          "institution": "Madurai Kamaraj University, Madurai",
+          "institution_citation": "https://sit.irins.org/profile/91103",
+          "year": 2008,
+          "year_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "degree": "Master of Computer Applications",
+          "degree_citation": "https://sit.irins.org/profile/91103",
+          "institution": "Siddaganga Institute of Technology",
+          "institution_citation": "https://sit.irins.org/profile/91103",
+          "year": 1998,
+          "year_citation": "https://sit.irins.org/profile/91103"
+        }
+      ],
+      "professional_experience": [
+        {
+          "job_title": "Associate Professor",
+          "job_title_citation": "https://sit.irins.org/profile/91103",
+          "organization": "MCA, Siddaganga Institute of Technology",
+          "organization_citation": "https://sit.irins.org/profile/91103",
+          "start_date": "1998",
+          "start_date_citation": "https://sit.irins.org/profile/91103",
+          "end_date": "Present",
+          "end_date_citation": "https://sit.irins.org/profile/91103"
+        }
+      ],
+      "research_topics": [
+        {
+          "value": "Computer Science Information Systems",
+          "value_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "value": "Data mining",
+          "value_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "value": "Digital Image Analysis and Processing",
+          "value_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "value": "Evolutionary Computing Techniques",
+          "value_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "value": "Wireless Sensor Networks",
+          "value_citation": "https://sit.irins.org/profile/91103"
+        },
+        {
+          "value": "Deep Learning",
+          "value_citation": "https://sit.irins.org/profile/91103"
+        }
+      ]
+    },
+    {
+      "full_name": "Mr Venkata Reddy  Y",
+      "full_name_citation": "https://sit.irins.org/profile/91119",
+      "contact_details": {
+        "phone": "8088004356",
+        "phone_citation": "https://sit.irins.org/profile/91119"
+      },
+      "educational_background": [
+        {
+          "degree": "M.C.A",
+          "degree_citation": "https://sit.irins.org/profile/91119",
+          "institution": "Osmania University",
+          "institution_citation": "https://sit.irins.org/profile/91119",
+          "year": 2006,
+          "year_citation": "https://sit.irins.org/profile/91119"
+        }
+      ],
+      "professional_experience": [
+        {
+          "job_title": "Assistant Professor",
+          "job_title_citation": "https://sit.irins.org/profile/91119",
+          "organization": "MCA, Siddaganga Institute of Technology",
+          "organization_citation": "https://sit.irins.org/profile/91119",
+          "start_date": "2008",
+          "start_date_citation": "https://sit.irins.org/profile/91119",
+          "end_date": "Present",
+          "end_date_citation": "https://sit.irins.org/profile/91119"
+        }
+      ],
+      "research_topics": [
+        {
+          "value": "Computer Science Information Systems",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "J2EE: Servlets",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "JSP",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "EJB",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Web programming (Html",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Xhtml",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "XML",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "CSS",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Dhtml",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Perl",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "PHP",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Java scripts",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Python etc)",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "C++",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "Data Structures using C++",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "OOPC++",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "RDBMS (ORACLE",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        },
+        {
+          "value": "MYSQL) ETC.",
+          "value_citation": "https://sit.irins.org/profile/91119"
+        }
+      ]
+    }
+  ]
+}

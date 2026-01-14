@@ -1,78 +1,67 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { Document, Role, SourceType, Citation } from "../types";
 import { MODEL_MAIN, MODEL_TTS, MODEL_FAST_LITE } from "../constants";
-import { searchSITWebsite, prefetchCommonPages } from "./webScraperService";
 
 // The API key is injected via vite.config.ts from the .env file
 const apiKey = process.env.GEMINI_API_KEY;
-console.log("Using API Key starting with:", apiKey ? apiKey.substring(0, 8) + "..." : "UNDEFINED");
 
-// Create a singleton AI client instance
+// Validate API key on load
+if (!apiKey) {
+  console.error("CRITICAL: GEMINI_API_KEY is not configured!");
+} else {
+  console.log("API Key loaded:", apiKey.substring(0, 10) + "...");
+}
+
+// Singleton AI client
 let aiInstance: GoogleGenAI | null = null;
 
 const getAIClient = (): GoogleGenAI => {
   if (!aiInstance) {
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured. Please add it to your .env file.");
     }
-    aiInstance = new GoogleGenAI({ apiKey: apiKey });
+    aiInstance = new GoogleGenAI({ apiKey });
   }
   return aiInstance;
 };
 
-// Reset the AI client (useful for error recovery)
-const resetAIClient = (): void => {
+export const resetAIClient = (): void => {
   aiInstance = null;
 };
 
-// Retry configuration
-const MAX_RETRIES = 3;
-const INITIAL_BACKOFF_MS = 1000;
+// Abort controller for cancellable requests
+let currentAbortController: AbortController | null = null;
 
-// Helper function for exponential backoff retry
-async function retryWithBackoff<T>(
-  operation: () => Promise<T>,
-  maxRetries: number = MAX_RETRIES,
-  initialBackoff: number = INITIAL_BACKOFF_MS
+export const cancelCurrentRequest = (): void => {
+  if (currentAbortController) {
+    currentAbortController.abort();
+    currentAbortController = null;
+  }
+};
+
+// Simple retry helper
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 2,
+  delayMs = 1000
 ): Promise<T> {
-  let lastError: any;
+  let lastError: Error | null = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await operation();
+      return await fn();
     } catch (error: any) {
       lastError = error;
+      console.warn(`Attempt ${attempt + 1} failed:`, error.message);
 
-      const isRateLimited = error?.status === 429 ||
-        error?.message?.includes('429') ||
-        error?.message?.toLowerCase().includes('rate limit') ||
-        error?.message?.toLowerCase().includes('quota');
+      // Don't retry on abort
+      if (error.name === 'AbortError') throw error;
 
-      const isServerError = error?.status >= 500 ||
-        error?.message?.includes('500') ||
-        error?.message?.toLowerCase().includes('internal');
+      // Don't retry on auth errors
+      if (error.message?.includes('API key') || error.status === 401) throw error;
 
-      const isNetworkError = error?.message?.toLowerCase().includes('network') ||
-        error?.message?.toLowerCase().includes('fetch') ||
-        error?.message?.toLowerCase().includes('timeout');
-
-      const isRetryable = isRateLimited || isServerError || isNetworkError;
-
-      if (!isRetryable || attempt === maxRetries) {
-        if (isRateLimited) {
-          throw new Error(`Rate limit exceeded. Please wait a moment before trying again.`);
-        }
-        throw error;
-      }
-
-      const backoffMs = initialBackoff * Math.pow(2, attempt) + Math.random() * 500;
-      console.log(`Retry attempt ${attempt + 1}/${maxRetries} after ${backoffMs}ms...`);
-
-      const waitTime = isRateLimited ? Math.max(backoffMs, 5000) : backoffMs;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-
-      if (isNetworkError) {
-        resetAIClient();
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, delayMs * (attempt + 1)));
       }
     }
   }
@@ -80,52 +69,43 @@ async function retryWithBackoff<T>(
   throw lastError;
 }
 
-// SEARCH ENGINE SYSTEM INSTRUCTION - NOT A CHATBOT
-const SEARCH_ENGINE_INSTRUCTION = `
-You are SIT Scholar, an ACADEMIC SEARCH ENGINE for Siddaganga Institute of Technology (SIT), Tumkur.
+// System instruction for SIT Scholar
+const SYSTEM_INSTRUCTION = `You are SIT Scholar, an intelligent academic assistant for Siddaganga Institute of Technology (SIT), Tumkur.
 
-## CRITICAL: YOU ARE A SEARCH ENGINE, NOT A CHATBOT
+## YOUR ROLE
+- Provide accurate, helpful information about SIT
+- Answer questions about academics, faculty, admissions, fees, placements
+- Format responses clearly with proper structure
 
-You MUST:
-1. ONLY answer based on the SCRAPED WEB DATA provided below
-2. NEVER fabricate or hallucinate information
-3. ALWAYS cite the exact source URL for every fact
-4. If data is not in the scraped content, say "This information was not found on the SIT website"
-5. Present data in structured formats (tables, lists)
-
-## MANDATORY CITATION FORMAT
-Every factual statement MUST end with [Source: URL]
-Example: "The HOD of MCA is Dr. Premasudha B G [Source: https://sit.ac.in/html/department.php?deptid=15]"
-
-## DATA PRESENTATION RULES
-1. Use MARKDOWN TABLES for lists of people, courses, fees
-2. Bold important names, titles, dates
-3. Start with a direct answer, then provide details
-4. Include contact information when available
-
-## DEPARTMENT ASSUMPTION
+## DEFAULT DEPARTMENT
 If no department is specified, assume MCA (Master of Computer Applications)
 
-## RESPONSE STRUCTURE
-1. **Direct Answer** (1-2 sentences)
-2. **Detailed Information** (tables/lists from scraped data)
-3. **Source Citations** (list all scraped URLs used)
+## FORMATTING RULES
+1. Use **bold** for important names, dates, titles
+2. Use tables for lists of people, courses, or comparative data
+3. Structure: Direct answer first, then details
+4. Keep responses concise but complete
+
+## KNOWN FACTS ABOUT SIT
+- Location: Tumkur, Karnataka, India
+- Type: Autonomous Engineering College
+- Established: 1963
+- Affiliated to: Visvesvaraya Technological University (VTU)
+- MCA Department HOD: Dr. Premasudha B G
+- Principal: Dr. Shivakumara Swamy
 
 ## PRIVACY
-- PUBLIC users: Hide USNs, personal emails, phone numbers
-- ADMIN users: Show all information
+- For PUBLIC users: Don't share personal contact details
+- For ADMIN users: Full access to all information
 
-Remember: You are a SEARCH ENGINE. Only present information that exists in the scraped data.
-`;
+Be helpful, accurate, and professional.`;
 
 interface GenerateResponseResult {
   text: string;
   citations: Citation[];
   needsWebSearchApproval: boolean;
-  scrapedPages?: string[];
 }
 
-// Progress callback for UI updates
 type ProgressCallback = (status: string) => void;
 
 export const generateAnswer = async (
@@ -137,79 +117,81 @@ export const generateAnswer = async (
   onProgress?: ProgressCallback
 ): Promise<GenerateResponseResult> => {
 
+  // Create new abort controller for this request
+  currentAbortController = new AbortController();
+
   try {
-    // Step 1: Scrape SIT website for relevant data
-    onProgress?.('Searching SIT website...');
+    onProgress?.('Processing your request...');
 
-    const scrapedData = await searchSITWebsite(query);
-    console.log('[Search] Scraped data from:', scrapedData.relevantPages);
-
-    // Step 2: Also check internal documents
-    onProgress?.('Checking internal records...');
-
+    // Find relevant internal documents
     const relevantDocs = documents.filter(doc => {
       if (role === Role.PUBLIC && doc.isRestricted) return false;
-      const keywords = query.toLowerCase().split(' ');
-      return keywords.some(k => k.length > 2 &&
-        (doc.content.toLowerCase().includes(k) || doc.title.toLowerCase().includes(k)));
+      const keywords = query.toLowerCase().split(' ').filter(k => k.length > 2);
+      return keywords.some(k =>
+        doc.content.toLowerCase().includes(k) ||
+        doc.title.toLowerCase().includes(k)
+      );
     });
 
+    // Build context from internal docs
     const internalContext = relevantDocs.length > 0
-      ? `\n\n## INTERNAL RECORDS:\n${relevantDocs.map(d =>
-        `[Document: ${d.title}]\n${d.content}`).join('\n\n')}`
+      ? `\n\nINTERNAL RECORDS:\n${relevantDocs.map(d =>
+        `[${d.title}]\n${d.content}`).join('\n\n')}`
       : '';
 
-    // Step 3: Build context with scraped data
-    const systemInstruction = `
-${SEARCH_ENGINE_INSTRUCTION}
-
+    const fullSystemInstruction = `${SYSTEM_INSTRUCTION}
+        
 CURRENT USER ROLE: ${role}
+${internalContext}`;
 
-## SCRAPED WEB DATA FROM SIT WEBSITE:
-${scrapedData.content || 'No data could be scraped from the website.'}
-${internalContext}
-
-## SCRAPED SOURCES:
-${scrapedData.relevantPages.map(url => `- ${url}`).join('\n')}
-`;
-
-    // Step 4: Generate response
     onProgress?.('Generating response...');
 
     const ai = getAIClient();
-    const limitedHistory = history.slice(-10); // Reduced history for search context
 
-    const response = await retryWithBackoff(async () => {
+    // Limit history to last 10 messages to avoid token overflow
+    const limitedHistory = history.slice(-10);
+
+    // Build content array
+    const contents = [
+      ...limitedHistory.map(h => ({
+        role: h.role === 'user' ? 'user' as const : 'model' as const,
+        parts: [{ text: h.content }]
+      })),
+      { role: 'user' as const, parts: [{ text: query }] }
+    ];
+
+    // Make the API call
+    const response = await withRetry(async () => {
       return await ai.models.generateContent({
         model: MODEL_MAIN,
-        contents: [
-          ...limitedHistory.map(h => ({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.content }]
-          })),
-          { role: 'user', parts: [{ text: query }] }
-        ],
+        contents: contents,
         config: {
-          systemInstruction: systemInstruction,
+          systemInstruction: fullSystemInstruction,
           tools: enableWebSearch ? [{ googleSearch: {} }] : undefined,
         }
       });
     });
 
-    let text = response.text || "";
+    // Check if aborted
+    if (currentAbortController?.signal.aborted) {
+      throw new Error('Request was cancelled');
+    }
 
-    // Combine citations from scraping and any grounding
-    const citations: Citation[] = [...scrapedData.citations];
+    const text = response.text || "I couldn't generate a response. Please try again.";
 
-    // Add grounding citations from Gemini
+    // Build citations
+    const citations: Citation[] = [];
+
+    // Add grounding citations from Gemini (if web search was used)
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (groundingChunks) {
       groundingChunks.forEach((chunk: any) => {
-        if (chunk.web && !citations.some(c => c.url === chunk.web.uri)) {
+        if (chunk.web) {
           citations.push({
-            title: chunk.web.title || "Web Result",
+            title: chunk.web.title || "Web Source",
             url: chunk.web.uri,
-            sourceType: SourceType.EXTERNAL_WEB
+            sourceType: SourceType.EXTERNAL_WEB,
+            snippet: chunk.web.title
           });
         }
       });
@@ -217,60 +199,64 @@ ${scrapedData.relevantPages.map(url => `- ${url}`).join('\n')}
 
     // Add internal document citations
     relevantDocs.forEach(doc => {
-      if (!citations.some(c => c.title === doc.title)) {
-        citations.push({
-          title: doc.title,
-          sourceType: SourceType.INTERNAL,
-          snippet: "Verified Internal Record"
-        });
-      }
+      citations.push({
+        title: doc.title,
+        sourceType: SourceType.INTERNAL,
+        snippet: doc.content.substring(0, 100) + "..."
+      });
     });
 
     return {
       text,
       citations,
-      needsWebSearchApproval: false,
-      scrapedPages: scrapedData.relevantPages,
+      needsWebSearchApproval: false
     };
 
   } catch (error: any) {
-    console.error("Search Engine Error:", error);
+    console.error("Generate answer error:", error);
 
-    let userMessage = "⚠️ **Search Error**\n\n";
+    // Handle specific error types
+    if (error.name === 'AbortError' || error.message === 'Request was cancelled') {
+      return {
+        text: "Request was cancelled.",
+        citations: [],
+        needsWebSearchApproval: false
+      };
+    }
 
-    if (error?.message?.includes("Rate limit") || error?.message?.includes("429")) {
-      userMessage += "The search service is busy. Please wait a moment and try again.";
-    } else if (error?.message?.includes("API key")) {
-      userMessage += "Configuration error. Please contact the administrator.";
-    } else if (error?.message?.includes("network") || error?.message?.includes("fetch")) {
-      userMessage += "Network error. Please check your internet connection.";
-    } else {
-      userMessage += `${error.message || "An unexpected error occurred."}\n\nPlease try again.`;
+    let errorMessage = "An error occurred while processing your request.";
+
+    if (error.message?.includes('API key')) {
+      errorMessage = "API key error. Please check your configuration.";
+    } else if (error.message?.includes('429') || error.message?.includes('rate')) {
+      errorMessage = "Too many requests. Please wait a moment and try again.";
+    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      errorMessage = "Network error. Please check your internet connection.";
     }
 
     return {
-      text: userMessage,
+      text: `⚠️ **Error**\n\n${errorMessage}`,
       citations: [],
-      needsWebSearchApproval: false,
+      needsWebSearchApproval: false
     };
+  } finally {
+    currentAbortController = null;
   }
 };
 
-export const generateChatTitle = async (firstMessage: string, firstResponse: string): Promise<string> => {
+export const generateChatTitle = async (firstMessage: string): Promise<string> => {
   try {
     const ai = getAIClient();
 
-    const response = await retryWithBackoff(async () => {
-      return await ai.models.generateContent({
-        model: MODEL_FAST_LITE,
-        contents: `Generate a short, professional title (max 4-5 words) for this search query: "${firstMessage}". Return ONLY the title text.`,
-      });
-    }, 2);
+    const response = await ai.models.generateContent({
+      model: MODEL_FAST_LITE,
+      contents: `Generate a 3-4 word title for this query: "${firstMessage}". Return only the title.`
+    });
 
-    return response.text?.trim() || "Search Session";
+    return response.text?.trim().replace(/"/g, '') || "New Search";
   } catch (e) {
     console.warn("Title generation failed:", e);
-    return "Search Session";
+    return "New Search";
   }
 };
 
@@ -278,92 +264,41 @@ export const transcribeAudio = async (base64Audio: string): Promise<string> => {
   try {
     const ai = getAIClient();
 
-    const response = await retryWithBackoff(async () => {
+    const response = await withRetry(async () => {
       return await ai.models.generateContent({
         model: MODEL_MAIN,
         contents: {
           parts: [
             { inlineData: { mimeType: 'audio/webm', data: base64Audio } },
-            { text: "Transcribe this audio exactly. Return only the transcription." }
+            { text: "Transcribe this audio exactly. Return only the transcription text, nothing else." }
           ]
         }
       });
-    }, 2);
+    }, 1);
 
-    return response.text || "";
+    return response.text?.trim() || "";
   } catch (e) {
     console.error("Transcription error:", e);
     return "";
   }
 };
 
-// STREAMING TTS - Generate speech in chunks for faster playback
-export const generateSpeechStreaming = async (
-  text: string,
-  onChunkReady: (audioData: string, chunkIndex: number, isLast: boolean) => void
-): Promise<void> => {
-  const ai = getAIClient();
-
-  // Split text into smaller chunks for faster initial playback
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-  const chunks: string[] = [];
-  let currentChunk = '';
-
-  for (const sentence of sentences) {
-    if (currentChunk.length + sentence.length < 200) {
-      currentChunk += sentence;
-    } else {
-      if (currentChunk) chunks.push(currentChunk.trim());
-      currentChunk = sentence;
-    }
-  }
-  if (currentChunk) chunks.push(currentChunk.trim());
-
-  // Limit to reasonable number of chunks
-  const finalChunks = chunks.slice(0, 10);
-
-  console.log(`[TTS] Generating ${finalChunks.length} audio chunks...`);
-
-  // Generate first chunk immediately for fast start
-  for (let i = 0; i < finalChunks.length; i++) {
-    try {
-      const response = await ai.models.generateContent({
-        model: MODEL_TTS,
-        contents: [{ parts: [{ text: finalChunks[i] }] }],
-        config: {
-          responseModalities: [Modality.AUDIO],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Kore' },
-            },
-          },
-        },
-      });
-
-      const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-      if (audioData) {
-        onChunkReady(audioData, i, i === finalChunks.length - 1);
-      }
-    } catch (e) {
-      console.error(`[TTS] Chunk ${i} failed:`, e);
-    }
-  }
-};
-
-// Legacy single-call TTS for backward compatibility
 export const generateSpeech = async (text: string): Promise<string | undefined> => {
   try {
     const ai = getAIClient();
 
-    // Truncate and clean text for TTS
+    // Clean and truncate text for TTS
     const cleanText = text
-      .replace(/\*\*/g, '')  // Remove bold
-      .replace(/\[Source:.*?\]/g, '') // Remove citations
-      .replace(/\|/g, ', ') // Convert table pipes
-      .replace(/#+\s/g, '') // Remove headings
-      .substring(0, 1500);
+      .replace(/\*\*/g, '')
+      .replace(/#{1,6}\s/g, '')
+      .replace(/\|/g, ', ')
+      .replace(/\[.*?\]/g, '')
+      .replace(/\n+/g, '. ')
+      .substring(0, 1000);
 
-    const response = await retryWithBackoff(async () => {
+    if (!cleanText.trim()) return undefined;
+
+    const response = await withRetry(async () => {
       return await ai.models.generateContent({
         model: MODEL_TTS,
         contents: [{ parts: [{ text: cleanText }] }],
@@ -371,12 +306,12 @@ export const generateSpeech = async (text: string): Promise<string | undefined> 
           responseModalities: [Modality.AUDIO],
           speechConfig: {
             voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Kore' },
-            },
-          },
-        },
+              prebuiltVoiceConfig: { voiceName: 'Kore' }
+            }
+          }
+        }
       });
-    }, 1); // Only 1 retry for TTS
+    }, 1);
 
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   } catch (e) {
@@ -385,11 +320,16 @@ export const generateSpeech = async (text: string): Promise<string | undefined> 
   }
 };
 
-// Initialize - prefetch common pages
+// Initialize on load
 export const initializeSearchEngine = (): void => {
-  console.log('[Search Engine] Initializing...');
-  prefetchCommonPages();
+  console.log('[SIT Scholar] Initializing...');
+  // Validate API key
+  try {
+    getAIClient();
+    console.log('[SIT Scholar] API client ready');
+  } catch (e) {
+    console.error('[SIT Scholar] Initialization failed:', e);
+  }
 };
 
-// Export utility for resetting the client if needed
 export const resetGeminiClient = resetAIClient;
