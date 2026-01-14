@@ -4,7 +4,7 @@ import { ChatInterface } from './components/ChatInterface';
 import { Header, DesktopControls } from './components/Header';
 import { AdminPanel } from './components/AdminPanel';
 import { StorageService } from './services/storageService';
-import { generateAnswer, generateChatTitle } from './services/geminiService';
+import { generateAnswer, generateChatTitle, initializeSearchEngine } from './services/geminiService';
 import { Thread, Message, Role, Document } from './types';
 import { Menu } from 'lucide-react';
 
@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-8">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-black text-white p-8">
           <div className="max-w-md text-center space-y-6">
             <div className="text-6xl">⚠️</div>
             <h1 className="text-2xl font-bold">Something went wrong</h1>
@@ -58,40 +58,38 @@ class ErrorBoundary extends React.Component<
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // Default to ADMIN as per requirements
   const [userRole, setUserRole] = useState<Role>(Role.ADMIN);
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [searchStatus, setSearchStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   const [documents, setDocuments] = useState<Document[]>([]);
 
-  // Initialization
+  // Initialize
   useEffect(() => {
     try {
       // Theme
       const storedTheme = StorageService.getTheme();
       setTheme(storedTheme);
-      if (storedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      document.documentElement.classList.toggle('dark', storedTheme === 'dark');
 
       // Data
       const loadedThreads = StorageService.getThreads();
       setThreads(loadedThreads);
 
-      // Select most recent thread if available
       if (loadedThreads.length > 0) {
         setCurrentThreadId(loadedThreads[0].id);
       }
 
-      // Role is hardcoded to ADMIN for this view
       setDocuments(StorageService.getDocuments());
+
+      // Initialize search engine (prefetch common pages)
+      initializeSearchEngine();
+
     } catch (e) {
       console.error("Initialization error:", e);
       setError("Failed to initialize application");
@@ -102,18 +100,14 @@ function App() {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     StorageService.setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
   }, [theme]);
 
   const createNewThread = useCallback(() => {
     try {
       const newThread: Thread = {
         id: Date.now().toString(),
-        title: 'New Conversation',
+        title: 'New Search',
         messages: [],
         updatedAt: Date.now()
       };
@@ -121,10 +115,9 @@ function App() {
       setCurrentThreadId(newThread.id);
       StorageService.saveThread(newThread);
       setSidebarOpen(false);
-      setError(null); // Clear any previous errors
+      setError(null);
     } catch (e) {
       console.error("Failed to create thread:", e);
-      setError("Failed to create new conversation");
     }
   }, []);
 
@@ -144,19 +137,18 @@ function App() {
   }, [currentThreadId]);
 
   const handleSendMessage = useCallback(async (content: string, enableWebSearch = false) => {
-    // Clear previous errors
     setError(null);
+    setSearchStatus('');
 
     let threadId = currentThreadId;
     let currentThread = threads.find(t => t.id === threadId);
-    let isNewThread = false;
 
     try {
+      // Create new thread if needed
       if (!threadId || !currentThread) {
-        isNewThread = true;
         const newThread: Thread = {
           id: Date.now().toString(),
-          title: 'New Conversation',
+          title: 'New Search',
           messages: [],
           updatedAt: Date.now()
         };
@@ -179,23 +171,22 @@ function App() {
       let updatedThread = { ...currentThread, messages: updatedMessages, updatedAt: Date.now() };
 
       setThreads(prev => prev.map(t => t.id === threadId ? updatedThread : t));
-
       setIsLoading(true);
 
-      // Call Gemini with timeout
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timed out')), 60000); // 60 second timeout
-      });
+      // Progress callback for search status updates
+      const onProgress = (status: string) => {
+        setSearchStatus(status);
+      };
 
-      const responsePromise = generateAnswer(
+      // Generate response with web scraping
+      const response = await generateAnswer(
         content,
         updatedMessages.map(m => ({ role: m.role, content: m.content })),
         userRole,
         documents,
-        enableWebSearch
+        enableWebSearch,
+        onProgress
       );
-
-      const response = await Promise.race([responsePromise, timeoutPromise]);
 
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -203,20 +194,20 @@ function App() {
         content: response.text,
         citations: response.citations,
         needsWebSearchApproval: response.needsWebSearchApproval,
+        scrapedPages: response.scrapedPages,
         timestamp: Date.now()
       };
 
       const finalMessages = [...updatedMessages, botMsg];
       updatedThread = { ...updatedThread, messages: finalMessages };
 
-      // Auto-rename logic for new threads (first exchange)
+      // Generate title for new threads
       if (finalMessages.length <= 2) {
         try {
           const newTitle = await generateChatTitle(content, response.text);
           updatedThread.title = newTitle;
-        } catch (titleError) {
-          console.warn("Failed to generate title:", titleError);
-          // Keep default title on error
+        } catch (e) {
+          console.warn("Title generation failed");
         }
       }
 
@@ -224,15 +215,12 @@ function App() {
       StorageService.saveThread(updatedThread);
 
     } catch (err: any) {
-      console.error("Message handling error:", err);
+      console.error("Search error:", err);
 
-      // Add error message to the conversation
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        content: err.message === 'Request timed out'
-          ? '⏱️ **Request Timed Out**\n\nThe request took too long to complete. Please try again.'
-          : `⚠️ **Error**: ${err.message || 'An unexpected error occurred'}\n\nPlease try again.`,
+        content: `⚠️ **Search Error**\n\n${err.message || 'An unexpected error occurred'}\n\nPlease try again.`,
         timestamp: Date.now()
       };
 
@@ -247,29 +235,25 @@ function App() {
       }
     } finally {
       setIsLoading(false);
+      setSearchStatus('');
     }
   }, [currentThreadId, threads, userRole, documents]);
 
   const currentMessages = threads.find(t => t.id === currentThreadId)?.messages || [];
 
-  // Display error notification if any
-  const renderError = () => {
-    if (!error) return null;
-    return (
-      <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
-        <span>{error}</span>
-        <button onClick={() => setError(null)} className="text-white/80 hover:text-white">
-          ✕
-        </button>
-      </div>
-    );
-  };
-
   return (
-    <ErrorBoundary onError={(e) => console.error("ErrorBoundary caught:", e)}>
-      <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[#0f0f10]">
+    <ErrorBoundary onError={(e) => console.error("ErrorBoundary:", e)}>
+      <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[#0a0a0b]">
 
-        {renderError()}
+        {/* Error Toast */}
+        {error && (
+          <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-down">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-white/80 hover:text-white">
+              ✕
+            </button>
+          </div>
+        )}
 
         <Sidebar
           threads={threads}
@@ -295,7 +279,7 @@ function App() {
           {/* Desktop Menu Trigger */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="hidden lg:flex absolute top-6 left-6 z-20 p-2.5 bg-white/80 dark:bg-sit-800/50 backdrop-blur-md border border-gray-200 dark:border-gray-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-sit-700/50 rounded-xl shadow-sm transition-all hover:scale-105"
+            className="hidden lg:flex absolute top-6 left-6 z-20 p-2.5 bg-white/80 dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-gray-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 rounded-xl shadow-sm transition-all hover:scale-105"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -311,6 +295,7 @@ function App() {
             onSendMessage={handleSendMessage}
             onNewChat={createNewThread}
             userRole={userRole}
+            searchStatus={searchStatus}
           />
         </div>
 

@@ -5,11 +5,15 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Message, Role, SourceType, Citation } from '../types';
 import { Button } from './ui/Button';
-import { ArrowUp, Globe, Search, Lock, Sparkles, BookOpen, Plus, Mic, Square, X, Volume2, Loader2, Pause, Play, AudioLines, AlertCircle } from 'lucide-react';
+import {
+    ArrowUp, Globe, Search, Lock, Sparkles, BookOpen, Plus, Mic, Square, X,
+    Volume2, Loader2, Pause, Play, AudioLines, AlertCircle, ExternalLink,
+    Database, RefreshCw, StopCircle
+} from 'lucide-react';
 import { transcribeAudio, generateSpeech } from '../services/geminiService';
 import { LiveVoiceInterface } from './LiveVoiceInterface';
 
-// Error Boundary for Live Mode only
+// Error Boundary for Live Mode
 class LiveModeErrorBoundary extends React.Component<
     { children: React.ReactNode; onError: () => void },
     { hasError: boolean }
@@ -36,7 +40,7 @@ class LiveModeErrorBoundary extends React.Component<
                         <AlertCircle className="w-16 h-16 text-red-400 mx-auto" />
                         <h2 className="text-2xl font-semibold text-white">Live Mode Error</h2>
                         <p className="text-gray-400 max-w-md">
-                            There was an issue starting Live Mode. This could be due to microphone permissions or browser compatibility.
+                            There was an issue with Live Mode. Please try again.
                         </p>
                         <button
                             onClick={() => {
@@ -61,6 +65,7 @@ interface ChatInterfaceProps {
     onSendMessage: (content: string, enableWebSearch?: boolean) => void;
     onNewChat: () => void;
     userRole: Role;
+    searchStatus?: string;
 }
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -85,12 +90,72 @@ function decode(base64: string) {
     return bytes;
 }
 
+// Enhanced Citation Card Component
+const CitationCard: React.FC<{ citation: Citation; index: number }> = ({ citation, index }) => {
+    const getIcon = () => {
+        switch (citation.sourceType) {
+            case SourceType.INTERNAL:
+                return <Database className="w-4 h-4" />;
+            case SourceType.COLLEGE_WEB:
+                return <BookOpen className="w-4 h-4" />;
+            default:
+                return <Globe className="w-4 h-4" />;
+        }
+    };
+
+    const getColors = () => {
+        switch (citation.sourceType) {
+            case SourceType.INTERNAL:
+                return 'border-purple-500/30 hover:border-purple-400 bg-purple-500/5';
+            case SourceType.COLLEGE_WEB:
+                return 'border-blue-500/30 hover:border-blue-400 bg-blue-500/5';
+            default:
+                return 'border-green-500/30 hover:border-green-400 bg-green-500/5';
+        }
+    };
+
+    return (
+        <a
+            href={citation.url || '#'}
+            target={citation.url ? "_blank" : undefined}
+            rel="noopener noreferrer"
+            className={`group flex items-start gap-3 p-3 rounded-xl border ${getColors()} transition-all hover:shadow-lg cursor-pointer no-underline`}
+        >
+            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded-lg bg-white/10 text-gray-400 group-hover:text-white transition-colors">
+                {getIcon()}
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-500 bg-white/10 px-2 py-0.5 rounded">
+                        [{index + 1}]
+                    </span>
+                    <span className="text-sm font-semibold text-gray-200 group-hover:text-white truncate">
+                        {citation.title}
+                    </span>
+                </div>
+                {citation.snippet && (
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                        {citation.snippet}
+                    </p>
+                )}
+                {citation.url && (
+                    <div className="flex items-center gap-1 mt-2 text-xs text-blue-400 group-hover:text-blue-300">
+                        <ExternalLink className="w-3 h-3" />
+                        <span className="truncate">{new URL(citation.url).hostname}</span>
+                    </div>
+                )}
+            </div>
+        </a>
+    );
+};
+
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     messages,
     isLoading,
     onSendMessage,
     onNewChat,
-    userRole
+    userRole,
+    searchStatus
 }) => {
     const [input, setInput] = useState('');
     const [isLiveMode, setIsLiveMode] = useState(false);
@@ -99,16 +164,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     const [recordingState, setRecordingState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
     const [recordingDuration, setRecordingDuration] = useState(0);
 
-    // Audio Playback States
+    // TTS States
     const [activeAudioId, setActiveAudioId] = useState<string | null>(null);
-    const [audioStatus, setAudioStatus] = useState<'loading' | 'playing' | 'paused' | 'idle'>('idle');
+    const [audioStatus, setAudioStatus] = useState<'idle' | 'loading' | 'playing' | 'paused'>('idle');
+    const [ttsProgress, setTtsProgress] = useState(0);
 
+    // Refs
     const audioContextRef = useRef<AudioContext | null>(null);
     const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
     const audioBufferRef = useRef<AudioBuffer | null>(null);
     const startedAtRef = useRef<number>(0);
     const pausedAtRef = useRef<number>(0);
-
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -121,7 +187,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isLoading, recordingState]);
+    }, [messages, isLoading]);
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -153,18 +219,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         };
     }, []);
 
-    const stopAudio = () => {
+    const stopAudio = useCallback(() => {
         if (audioSourceRef.current) {
-            try {
-                audioSourceRef.current.stop();
-            } catch (e) { }
+            try { audioSourceRef.current.stop(); } catch (e) { }
             audioSourceRef.current = null;
         }
         setAudioStatus('idle');
         setActiveAudioId(null);
+        setTtsProgress(0);
         pausedAtRef.current = 0;
         startedAtRef.current = 0;
-    };
+    }, []);
 
     const handleNewChat = () => {
         stopAudio();
@@ -236,42 +301,55 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         setRecordingState('idle');
     };
 
-    const handleAudioControl = async (text: string, messageId: string) => {
-        if (activeAudioId !== messageId) {
-            stopAudio();
-            setActiveAudioId(messageId);
-            setAudioStatus('loading');
-
-            try {
-                const base64Audio = await generateSpeech(text);
-                if (!base64Audio) throw new Error("Audio generation failed");
-
-                if (!audioContextRef.current) {
-                    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-                }
-                const ctx = audioContextRef.current;
-                if (ctx.state === 'suspended') await ctx.resume();
-
-                const audioBytes = decode(base64Audio);
-                const dataInt16 = new Int16Array(audioBytes.buffer);
-                const buffer = ctx.createBuffer(1, dataInt16.length, 24000);
-                const channelData = buffer.getChannelData(0);
-                for (let i = 0; i < dataInt16.length; i++) {
-                    channelData[i] = dataInt16[i] / 32768.0;
-                }
-
-                audioBufferRef.current = buffer;
-                playBufferFrom(0);
-
-            } catch (e) {
-                setAudioStatus('idle');
-                setActiveAudioId(null);
+    // Optimized TTS with faster startup
+    const handleReadAloud = async (text: string, messageId: string) => {
+        if (activeAudioId === messageId) {
+            if (audioStatus === 'playing') {
+                pauseAudio();
+            } else if (audioStatus === 'paused') {
+                resumeAudio();
             }
             return;
         }
 
-        if (audioStatus === 'playing') pauseAudio();
-        else if (audioStatus === 'paused') resumeAudio();
+        stopAudio();
+        setActiveAudioId(messageId);
+        setAudioStatus('loading');
+
+        try {
+            // Clean text for better TTS
+            const cleanText = text
+                .replace(/\*\*/g, '')
+                .replace(/\[Source:.*?\]/g, '')
+                .replace(/#{1,6}\s/g, '')
+                .replace(/\|/g, ', ')
+                .substring(0, 1000);
+
+            const base64Audio = await generateSpeech(cleanText);
+            if (!base64Audio) throw new Error("TTS failed");
+
+            if (!audioContextRef.current) {
+                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+            }
+            const ctx = audioContextRef.current;
+            if (ctx.state === 'suspended') await ctx.resume();
+
+            const audioBytes = decode(base64Audio);
+            const dataInt16 = new Int16Array(audioBytes.buffer);
+            const buffer = ctx.createBuffer(1, dataInt16.length, 24000);
+            const channelData = buffer.getChannelData(0);
+            for (let i = 0; i < dataInt16.length; i++) {
+                channelData[i] = dataInt16[i] / 32768.0;
+            }
+
+            audioBufferRef.current = buffer;
+            playBufferFrom(0);
+
+        } catch (e) {
+            console.error("TTS error:", e);
+            setAudioStatus('idle');
+            setActiveAudioId(null);
+        }
     };
 
     const playBufferFrom = (offset: number) => {
@@ -284,6 +362,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             if (pausedAtRef.current === 0) {
                 setAudioStatus('idle');
                 setActiveAudioId(null);
+                setTtsProgress(0);
             }
         };
         audioSourceRef.current = source;
@@ -312,30 +391,21 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const renderSources = (citations: Citation[]) => {
+    // Render citations
+    const renderCitations = (citations: Citation[]) => {
         if (!citations || citations.length === 0) return null;
+
         return (
             <div className="mb-6 animate-fade-in">
-                <div className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <BookOpen className="w-3 h-3" /> Sources
+                <div className="flex items-center gap-2 mb-3">
+                    <BookOpen className="w-4 h-4 text-gray-500" />
+                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Sources ({citations.length})
+                    </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                    {citations.slice(0, 4).map((cite, idx) => (
-                        <a
-                            key={idx}
-                            href={cite.url || '#'}
-                            target={cite.url ? "_blank" : undefined}
-                            className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-[#1a1f2c] rounded-full border border-gray-100 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500/50 transition-all cursor-pointer no-underline group shadow-sm hover:shadow-md transform hover:-translate-y-0.5 duration-200"
-                        >
-                            <div className="flex-shrink-0 text-gray-400 group-hover:text-blue-500 transition-colors">
-                                {cite.sourceType === SourceType.INTERNAL ? <Lock className="w-3.5 h-3.5" /> : <Globe className="w-3.5 h-3.5" />}
-                            </div>
-                            <div className="flex flex-col max-w-[150px]">
-                                <span className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 truncate leading-tight group-hover:text-blue-500">
-                                    {cite.title}
-                                </span>
-                            </div>
-                        </a>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {citations.slice(0, 6).map((cite, idx) => (
+                        <CitationCard key={idx} citation={cite} index={idx} />
                     ))}
                 </div>
             </div>
@@ -357,18 +427,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <div className="absolute top-6 right-20 z-20 hidden lg:flex items-center space-x-3">
                 <button
                     onClick={() => setIsLiveMode(true)}
-                    className="flex items-center space-x-2 px-4 py-2.5 bg-indigo-500 text-white hover:bg-indigo-600 rounded-full shadow-md transition-all hover:scale-105"
+                    className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 rounded-full shadow-lg transition-all hover:scale-105 hover:shadow-indigo-500/25"
                 >
                     <AudioLines className="w-4 h-4" />
-                    <span className="text-sm font-medium">Live Mode</span>
+                    <span className="text-sm font-medium">Live Voice</span>
                 </button>
 
                 <button
                     onClick={handleNewChat}
-                    className="flex items-center space-x-2 px-4 py-2.5 bg-white/80 dark:bg-sit-800/50 backdrop-blur-md border border-gray-200 dark:border-gray-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-sit-700/50 rounded-full shadow-sm transition-all hover:scale-105"
+                    className="flex items-center space-x-2 px-4 py-2.5 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-gray-200 dark:border-gray-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/20 rounded-full shadow-sm transition-all hover:scale-105"
                 >
                     <Plus className="w-4 h-4" />
-                    <span className="text-sm font-medium">New Chat</span>
+                    <span className="text-sm font-medium">New Search</span>
                 </button>
             </div>
 
@@ -377,207 +447,169 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <div className="max-w-4xl mx-auto p-4 md:p-8 pb-40">
 
                     {messages.length === 0 ? (
-                        <div className="min-h-[70vh] flex flex-col items-center justify-center text-center animate-fade-in delay-100 px-4">
+                        <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4">
+                            {/* Logo/Branding */}
+                            <div className="mb-8 animate-fade-in">
+                                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/30 mb-4 mx-auto">
+                                    <Search className="w-10 h-10 text-white" />
+                                </div>
+                                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                                    SIT Scholar
+                                </h1>
+                                <p className="text-gray-500 mt-2">Academic Search Engine</p>
+                            </div>
 
-                            <p className="text-gray-500 dark:text-gray-400 text-lg mb-10 max-w-lg leading-relaxed animate-slide-up" style={{ animationDelay: '100ms' }}>
-                                Access official academic records, faculty details, and campus data instantly.
+                            <p className="text-gray-500 dark:text-gray-400 text-lg mb-8 max-w-lg leading-relaxed animate-slide-up">
+                                Search SIT's official records, faculty details, and academic data with real-time web scraping.
                             </p>
 
-                            <div className="w-full max-w-2xl animate-slide-up" style={{ animationDelay: '200ms' }}>
-                                <div className="bg-white dark:bg-[#0f0f10] p-2 rounded-[2rem] shadow-xl hover:shadow-2xl dark:shadow-black/50 border-none flex items-center mb-8 transition-all duration-300 relative overflow-hidden ring-0">
-
-                                    {recordingState === 'idle' ? (
-                                        <>
-                                            <Search className="w-6 h-6 text-gray-400 ml-4 flex-shrink-0" />
-                                            <input
-                                                type="text"
-                                                value={input}
-                                                onChange={(e) => setInput(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') handleSubmit();
-                                                }}
-                                                placeholder="Search students, faculty, or curriculum..."
-                                                className="w-full bg-transparent border-none focus:ring-0 px-4 py-4 text-lg text-gray-900 dark:text-white placeholder-gray-400 outline-none"
-                                            />
-                                            <div className="flex items-center gap-2 mr-1 flex-shrink-0">
-                                                <button
-                                                    onClick={startRecording}
-                                                    className="p-3 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                                    title="Start Recording"
-                                                >
-                                                    <Mic className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleSubmit()}
-                                                    className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-lg hover:shadow-blue-500/30"
-                                                >
-                                                    <ArrowUp className="w-5 h-5" />
-                                                </button>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-between px-6 py-2 bg-red-50 dark:bg-red-900/10">
-                                            {recordingState === 'recording' ? (
-                                                <div className="flex items-center gap-3">
-                                                    <div className="relative">
-                                                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                                        <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
-                                                    </div>
-                                                    <span className="text-red-600 dark:text-red-400 font-mono font-medium text-lg">
-                                                        Recording {formatTime(recordingDuration)}
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-3">
-                                                    <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
-                                                    <span className="text-blue-600 dark:text-blue-400 font-medium text-lg">
-                                                        Transcribing...
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            <div className="flex items-center gap-3">
-                                                <button
-                                                    onClick={cancelRecording}
-                                                    disabled={recordingState !== 'recording'}
-                                                    className="p-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                                                    title="Cancel"
-                                                >
-                                                    <X className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    onClick={stopAndTranscribe}
-                                                    disabled={recordingState !== 'recording'}
-                                                    className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg hover:shadow-red-500/30 disabled:opacity-50"
-                                                    title="Stop & Transcribe"
-                                                >
-                                                    {recordingState === 'recording' ? <Square className="w-5 h-5 fill-current" /> : <Loader2 className="w-5 h-5 animate-spin" />}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-wrap justify-center gap-3">
-                                    {[
-                                        "HOD of MCA",
-                                        "Anand R Batch 2003",
-                                        "3rd Semester Students (2026)",
-                                        "Faculty Contact"
-                                    ].map((tag, i) => (
+                            {/* Search Box */}
+                            <div className="w-full max-w-2xl animate-slide-up" style={{ animationDelay: '100ms' }}>
+                                <div className="bg-white dark:bg-[#111] p-2 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 flex items-center">
+                                    <Search className="w-5 h-5 text-gray-400 ml-4" />
+                                    <input
+                                        type="text"
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handleSubmit();
+                                        }}
+                                        placeholder="Search faculty, students, fees, syllabus..."
+                                        className="w-full bg-transparent border-none focus:ring-0 px-4 py-4 text-lg text-gray-900 dark:text-white placeholder-gray-400 outline-none"
+                                    />
+                                    <div className="flex items-center gap-2 mr-2">
                                         <button
-                                            key={i}
-                                            onClick={() => onSendMessage(tag)}
-                                            className="px-5 py-2 bg-white dark:bg-[#151516] border border-gray-200 dark:border-gray-800 rounded-full text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 shadow-sm"
+                                            onClick={startRecording}
+                                            className="p-3 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                         >
-                                            {tag}
+                                            <Mic className="w-5 h-5" />
                                         </button>
-                                    ))}
+                                        <button
+                                            onClick={() => handleSubmit()}
+                                            disabled={!input.trim()}
+                                            className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-lg"
+                                        >
+                                            <ArrowUp className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>
+
+                            {/* Quick Searches */}
+                            <div className="flex flex-wrap justify-center gap-2 mt-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
+                                {[
+                                    "MCA HOD details",
+                                    "Fee structure",
+                                    "Principal of SIT",
+                                    "MCA faculty list"
+                                ].map((tag, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => onSendMessage(tag)}
+                                        className="px-4 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     ) : (
-                        messages.map((msg, idx) => (
-                            <div key={msg.id} className="mb-12 animate-slide-up">
-
+                        messages.map((msg) => (
+                            <div key={msg.id} className="mb-10 animate-slide-up">
                                 {/* User Query */}
                                 {msg.role === 'user' && (
-                                    <div className="flex justify-end mb-6">
-                                        <div className="bg-gray-100 dark:bg-gray-800/50 px-6 py-3 rounded-3xl rounded-tr-sm max-w-[80%]">
-                                            <h2 className="text-xl font-medium text-gray-900 dark:text-white tracking-tight">
-                                                {msg.content}
-                                            </h2>
+                                    <div className="flex justify-end mb-4">
+                                        <div className="bg-indigo-600 text-white px-5 py-3 rounded-2xl rounded-tr-sm max-w-[80%] shadow-lg">
+                                            <p className="text-base font-medium">{msg.content}</p>
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Model Response */}
                                 {msg.role === 'model' && (
-                                    <div className="relative pl-4 md:pl-0">
-                                        {/* Sources Bar */}
-                                        {renderSources(msg.citations || [])}
+                                    <div className="relative">
+                                        {/* Citations */}
+                                        {renderCitations(msg.citations || [])}
 
-                                        <div className="flex gap-6">
-                                            <div className="flex-shrink-0 mt-1 hidden md:block">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-teal-400 flex items-center justify-center shadow-lg">
+                                        {/* Response Content */}
+                                        <div className="flex gap-4">
+                                            <div className="flex-shrink-0 hidden md:block">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
                                                     <Sparkles className="w-4 h-4 text-white" />
                                                 </div>
                                             </div>
 
                                             <div className="flex-1 min-w-0">
-                                                {/* Main Content */}
-                                                <div className="markdown-content prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed">
+                                                <div className="prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                                                     <ReactMarkdown
                                                         remarkPlugins={[remarkGfm, remarkMath]}
                                                         rehypePlugins={[rehypeKatex]}
                                                         components={{
                                                             table: ({ node, ...props }) => (
-                                                                <div className="overflow-hidden my-6 shadow-md rounded-2xl border border-gray-200 dark:border-gray-800">
+                                                                <div className="overflow-hidden my-4 shadow-md rounded-xl border border-gray-200 dark:border-gray-800">
                                                                     <div className="overflow-x-auto">
-                                                                        <table {...props} className="w-full text-sm text-left" />
+                                                                        <table {...props} className="w-full text-sm" />
                                                                     </div>
                                                                 </div>
                                                             ),
-                                                            thead: ({ node, ...props }) => <thead {...props} className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400" />,
-                                                            th: ({ node, ...props }) => <th {...props} className="px-6 py-3" />,
-                                                            td: ({ node, ...props }) => <td {...props} className="px-6 py-4 border-b dark:border-gray-800" />,
-                                                            a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 hover:underline font-medium decoration-2 decoration-blue-500/30" />,
-                                                            ul: ({ node, ...props }) => <ul {...props} className="list-disc pl-5 my-4 space-y-2 marker:text-blue-500" />,
-                                                            ol: ({ node, ...props }) => <ol {...props} className="list-decimal pl-5 my-4 space-y-2 marker:text-blue-500" />,
-                                                            blockquote: ({ node, ...props }) => <blockquote {...props} className="border-l-4 border-blue-500 pl-6 italic bg-gray-50 dark:bg-gray-900/30 py-4 rounded-r-2xl my-6" />
+                                                            thead: ({ node, ...props }) => (
+                                                                <thead {...props} className="bg-gray-50 dark:bg-gray-800/50 text-xs uppercase" />
+                                                            ),
+                                                            th: ({ node, ...props }) => (
+                                                                <th {...props} className="px-4 py-3 font-semibold text-gray-600 dark:text-gray-300" />
+                                                            ),
+                                                            td: ({ node, ...props }) => (
+                                                                <td {...props} className="px-4 py-3 border-b border-gray-100 dark:border-gray-800" />
+                                                            ),
+                                                            a: ({ node, ...props }) => (
+                                                                <a {...props} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:text-indigo-600 underline decoration-indigo-500/30" />
+                                                            ),
                                                         }}
                                                     >
                                                         {msg.content}
                                                     </ReactMarkdown>
                                                 </div>
 
-                                                {/* Web Search Permission Card */}
-                                                {msg.needsWebSearchApproval && (
-                                                    <div className="mt-8 p-0.5 bg-gradient-to-r from-blue-500 to-teal-400 rounded-2xl animate-fade-in shadow-lg">
-                                                        <div className="bg-white dark:bg-[#111111] rounded-[15px] p-5 flex items-center justify-between">
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-full text-blue-600">
-                                                                    <Globe className="w-6 h-6" />
-                                                                </div>
-                                                                <div>
-                                                                    <p className="font-bold text-gray-900 dark:text-white text-base">Expand search?</p>
-                                                                    <p className="text-sm text-gray-500">Internal records may be incomplete.</p>
-                                                                </div>
-                                                            </div>
-                                                            <Button size="sm" onClick={handleWebSearchApproval} className="rounded-full px-6">
-                                                                Search Web
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Footer Actions */}
-                                                <div className="mt-8 flex items-center space-x-4 text-gray-400">
+                                                {/* Action Buttons */}
+                                                <div className="mt-6 flex items-center gap-3">
                                                     <button
-                                                        onClick={() => handleAudioControl(msg.content, msg.id)}
-                                                        className={`p-2 rounded-full transition-colors group flex items-center gap-2 ${activeAudioId === msg.id ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                                                        title={activeAudioId === msg.id && audioStatus === 'playing' ? "Pause" : "Read Aloud"}
+                                                        onClick={() => handleReadAloud(msg.content, msg.id)}
+                                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${activeAudioId === msg.id
+                                                            ? 'bg-indigo-500 text-white'
+                                                            : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20'
+                                                            }`}
                                                     >
                                                         {activeAudioId === msg.id && audioStatus === 'loading' ? (
-                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            <>
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                                Loading...
+                                                            </>
                                                         ) : activeAudioId === msg.id && audioStatus === 'playing' ? (
-                                                            <Pause className="w-4 h-4 fill-current" />
+                                                            <>
+                                                                <Pause className="w-4 h-4" />
+                                                                Pause
+                                                            </>
                                                         ) : activeAudioId === msg.id && audioStatus === 'paused' ? (
-                                                            <Play className="w-4 h-4 fill-current" />
+                                                            <>
+                                                                <Play className="w-4 h-4" />
+                                                                Resume
+                                                            </>
                                                         ) : (
-                                                            <Volume2 className="w-4 h-4" />
+                                                            <>
+                                                                <Volume2 className="w-4 h-4" />
+                                                                Read Aloud
+                                                            </>
                                                         )}
+                                                    </button>
 
-                                                        {(activeAudioId === msg.id) && (
-                                                            <span className="text-xs font-medium">
-                                                                {audioStatus === 'loading' ? 'Loading...' : audioStatus === 'playing' ? 'Pause' : 'Resume'}
-                                                            </span>
-                                                        )}
-                                                    </button>
-                                                    <div className="w-px h-4 bg-gray-200 dark:bg-gray-700"></div>
-                                                    <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors group" title="Copy">
-                                                        <svg className="w-4 h-4 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                                    </button>
+                                                    {activeAudioId === msg.id && audioStatus !== 'idle' && (
+                                                        <button
+                                                            onClick={stopAudio}
+                                                            className="p-2 rounded-full bg-red-100 dark:bg-red-500/20 text-red-500 hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors"
+                                                        >
+                                                            <StopCircle className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -587,26 +619,39 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         ))
                     )}
 
+                    {/* Loading State */}
                     {isLoading && (
-                        <div className="mb-12 animate-pulse pl-14">
-                            <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded-full mb-6"></div>
-                            <div className="space-y-3 max-w-2xl">
-                                <div className="h-3 w-full bg-gray-100 dark:bg-[#111111] rounded-full"></div>
-                                <div className="h-3 w-5/6 bg-gray-100 dark:bg-[#111111] rounded-full"></div>
-                                <div className="h-3 w-4/6 bg-gray-100 dark:bg-[#111111] rounded-full"></div>
+                        <div className="mb-10 animate-pulse">
+                            <div className="flex items-center gap-3 mb-4 text-indigo-500">
+                                <RefreshCw className="w-5 h-5 animate-spin" />
+                                <span className="text-sm font-medium">
+                                    {searchStatus || 'Searching...'}
+                                </span>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-shrink-0 hidden md:block">
+                                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                                </div>
+                                <div className="flex-1 space-y-3">
+                                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-3/4" />
+                                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-1/2" />
+                                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-full w-2/3" />
+                                </div>
                             </div>
                         </div>
                     )}
+
+                    <div ref={messagesEndRef} />
                 </div>
             </div>
 
-            {/* Persistent Bottom Search Bar */}
-            {messages.length > 0 && !isLiveMode && (
-                <div className="bg-gradient-to-t from-white via-white to-transparent dark:from-black dark:via-black dark:to-transparent pt-10 pb-6 px-4 z-10 sticky bottom-0">
+            {/* Bottom Input Bar */}
+            {messages.length > 0 && (
+                <div className="bg-gradient-to-t from-white via-white/95 to-transparent dark:from-black dark:via-black/95 pt-8 pb-6 px-4 sticky bottom-0">
                     <div className="max-w-3xl mx-auto">
-                        <div className="bg-white dark:bg-[#151516] rounded-[2rem] shadow-xl dark:shadow-black border-none relative focus-within:ring-0 transition-all overflow-hidden">
+                        <div className="bg-white dark:bg-[#111] rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
                             {recordingState === 'idle' ? (
-                                <form onSubmit={handleSubmit} className="flex items-end p-2.5">
+                                <form onSubmit={handleSubmit} className="flex items-end p-2">
                                     <textarea
                                         ref={textareaRef}
                                         value={input}
@@ -618,64 +663,59 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                                             }
                                         }}
                                         placeholder="Ask a follow-up question..."
-                                        className="w-full bg-transparent text-gray-900 dark:text-white px-5 py-3 focus:outline-none resize-none max-h-[150px] min-h-[50px] placeholder-gray-400 outline-none border-none ring-0"
+                                        className="w-full bg-transparent text-gray-900 dark:text-white px-4 py-3 focus:outline-none resize-none max-h-[150px] min-h-[50px] placeholder-gray-400"
                                         rows={1}
                                     />
-                                    <div className="flex items-center pb-1 pr-1 gap-2">
+                                    <div className="flex items-center gap-2 pb-1 pr-1">
                                         <button
                                             onClick={startRecording}
                                             type="button"
-                                            className="p-3 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                            title="Record Audio"
+                                            className="p-3 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                         >
                                             <Mic className="w-5 h-5" />
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={!input.trim() || isLoading}
-                                            className="p-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-all shadow-md"
+                                            className="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-md"
                                         >
                                             <ArrowUp className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </form>
                             ) : (
-                                <div className="w-full h-[76px] flex items-center justify-between px-6 bg-red-50 dark:bg-red-900/10">
-                                    {recordingState === 'recording' ? (
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative flex-shrink-0">
-                                                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                                <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20"></div>
-                                            </div>
-                                            <span className="text-red-600 dark:text-red-400 font-mono font-medium text-lg">
-                                                {formatTime(recordingDuration)}
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-3">
-                                            <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
-                                            <span className="text-blue-600 dark:text-blue-400 font-medium text-lg">
-                                                Processing...
-                                            </span>
-                                        </div>
-                                    )}
-
+                                <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-500/10 rounded-2xl">
                                     <div className="flex items-center gap-3">
+                                        {recordingState === 'recording' ? (
+                                            <>
+                                                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                                                <span className="text-red-600 dark:text-red-400 font-mono font-medium">
+                                                    {formatTime(recordingDuration)}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
+                                                <span className="text-indigo-600 dark:text-indigo-400 font-medium">
+                                                    Transcribing...
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
                                         <button
                                             onClick={cancelRecording}
                                             disabled={recordingState !== 'recording'}
-                                            className="p-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-                                            title="Cancel"
+                                            className="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-white disabled:opacity-50"
                                         >
                                             <X className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={stopAndTranscribe}
                                             disabled={recordingState !== 'recording'}
-                                            className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg hover:shadow-red-500/30 disabled:opacity-50"
-                                            title="Stop & Transcribe"
+                                            className="p-3 bg-red-500 text-white rounded-full hover:bg-red-600 disabled:opacity-50 transition-colors"
                                         >
-                                            {recordingState === 'recording' ? <Square className="w-5 h-5 fill-current" /> : <Loader2 className="w-5 h-5 animate-spin" />}
+                                            <Square className="w-4 h-4 fill-current" />
                                         </button>
                                     </div>
                                 </div>
