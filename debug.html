@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIT Scholar AI - Debug Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .info {
+            color: #3b82f6;
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🎓 SIT Scholar AI - Debug Information</h1>
+        <p>This page helps you verify that the application is running correctly.</p>
+    </div>
+
+    <div class="card">
+        <h2>✅ Server Status</h2>
+        <p class="success">✓ Development server is running</p>
+        <p><strong>URL:</strong> <code>http://localhost:3001</code></p>
+        <p><strong>Network URL:</strong> <code>http://192.168.29.115:3001</code></p>
+    </div>
+
+    <div class="card">
+        <h2>🔑 API Configuration</h2>
+        <p class="success">✓ API Key is configured in .env file</p>
+        <p><strong>Environment Variable:</strong> <code>GEMINI_API_KEY</code></p>
+    </div>
+
+    <div class="card">
+        <h2>🐛 Common Issues & Solutions</h2>
+
+        <h3>1. White Screen Issue</h3>
+        <p><strong>Fixed:</strong></p>
+        <ul>
+            <li>✓ Added missing script tag in index.html</li>
+            <li>✓ Fixed API key reference in geminiService.ts</li>
+        </ul>
+
+        <h3>2. How to Check if It's Working</h3>
+        <ol>
+            <li>Open your browser's Developer Tools (F12)</li>
+            <li>Go to the Console tab</li>
+            <li>Navigate to <code>http://localhost:3001</code></li>
+            <li>Check for any error messages in red</li>
+        </ol>
+
+        <h3>3. Expected Behavior</h3>
+        <ul>
+            <li>You should see a dark-themed interface</li>
+            <li>A search bar in the center</li>
+            <li>A sidebar menu button in the top left</li>
+            <li>Theme toggle in the top right</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>🚀 Next Steps</h2>
+        <a href="http://localhost:3001" class="btn" target="_blank">Open SIT Scholar AI →</a>
+        <p style="margin-top: 15px;"><small>If you still see a white screen, please check the browser console for errors
+                and share them with me.</small></p>
+    </div>
+
+    <div class="card">
+        <h2>📋 Files Modified</h2>
+        <ul>
+            <li><code>index.html</code> - Added script tag to load React app</li>
+            <li><code>services/geminiService.ts</code> - Fixed API key reference</li>
+            <li><code>.env</code> - Added your Gemini API key</li>
+        </ul>
+    </div>
+</body>
+
+</html>

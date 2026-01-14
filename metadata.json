@@ -1,0 +1,7 @@
+{
+  "name": "SIT search",
+  "description": "An intelligent, Perplexity-style academic search engine for Siddaganga Institute of Technology, featuring tiered search logic and privacy controls.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
